@@ -27,10 +27,13 @@ jobs:
       matrix:
         _:
           - target: aarch64-unknown-linux-gnu
-            # Do not use -latest, since it uses a different glibc version!
-            host: ubuntu-22.04-arm
-            # ubuntu-22.04-arm, the oldest available GHA runner, has glibc 2.35
-            container: ghcr.io/rust-cross/manylinux_2_28-cross:aarch64
+            host: ubuntu-latest-arm
+            # Target glibc 2.17. This is the oldest glibc we can practically support.
+            # Note that ubuntu-22.04-arm has glibc 2.35, but our users need older glibc.
+            # See https://github.com/BoundaryML/baml/issues/2736
+            container: ghcr.io/rust-cross/manylinux2014-cross:aarch64
+            before: |
+              echo "CFLAGS_aarch64_unknown_linux_gnu=-D__ARM_ARCH=8" >> "$GITHUB_ENV"
             node_build: pnpm build:napi-release --target aarch64-unknown-linux-gnu
             cargo_args: -p baml-typescript-ffi -p baml-python-ffi
 
@@ -43,7 +46,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Check GLIBC version for Linux targets (skip musl targets)
+      # Dump GLIBC version for Linux targets (skip musl targets)
+      # NB: this is the fallback glibc that we link against; the manylinux containers
+      # link against older glibc versions by default. Using objdump/readelf to inspect
+      # the .node binary we build is more authoritative (use your preferred AI coding
+      # assistant to inspect the binary).
       - name: Check GLIBC version
         if: contains(matrix._.target, 'linux') && !contains(matrix._.target, 'musl')
         run: |
