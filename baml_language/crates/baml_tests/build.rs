@@ -709,7 +709,8 @@ fn generate_codegen_test(project: &TestProject) -> TokenStream {
             let mut output = String::new();
 
             // Pass all files (builtins + user) to compile_files
-            match baml_compiler_emit::compile_files(&db, &all_files) {
+            let options = baml_compiler_emit::CompileOptions { emit_test_cases: false };
+            match baml_compiler_emit::compile_files(&db, &all_files, options) {
                 Ok(program) => {
                     writeln!(output, "=== BYTECODE ===").unwrap();
                     writeln!(output, "Functions: {}", program.function_indices.len()).unwrap();

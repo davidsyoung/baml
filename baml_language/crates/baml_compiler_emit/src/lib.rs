@@ -59,6 +59,16 @@ pub use bex_vm_types::{
     type_tags,
 };
 
+/// Options for controlling bytecode compilation.
+#[derive(Debug, Clone, Copy)]
+pub struct CompileOptions {
+    /// Include test cases in the compiled program.
+    ///
+    /// When true, `test { ... }` blocks are compiled into `Program::test_cases`.
+    /// Only the CLI test runner needs this; SDK runtimes can leave it off.
+    pub emit_test_cases: bool,
+}
+
 /// Generate bytecode for all functions in a project.
 ///
 /// This is the main entry point for project-wide code generation.
@@ -66,9 +76,12 @@ pub use bex_vm_types::{
 /// lowers to MIR, and compiles to bytecode.
 ///
 /// Returns `Err` if any function contains unrecoverable errors (Missing nodes).
-pub fn generate_project_bytecode(db: &dyn baml_compiler_mir::Db) -> Result<Program, LoweringError> {
+pub fn generate_project_bytecode(
+    db: &dyn baml_compiler_mir::Db,
+    options: CompileOptions,
+) -> Result<Program, LoweringError> {
     let project = db.project();
-    compile_files(db, project.files(db))
+    compile_files(db, project.files(db), options)
 }
 
 /// Generate bytecode for a list of source files.
@@ -79,6 +92,7 @@ pub fn generate_project_bytecode(db: &dyn baml_compiler_mir::Db) -> Result<Progr
 pub fn compile_files(
     db: &dyn baml_compiler_mir::Db,
     files: &[SourceFile],
+    options: CompileOptions,
 ) -> Result<Program, LoweringError> {
     // Hidden LLM builtins (not exposed to users but used by compiler-generated code)
     // These are in the #[hide] mod llm block and not included in builtins()
@@ -557,23 +571,29 @@ pub fn compile_files(
     }
     program.template_strings_macros = template_macros.join("\n");
 
-    // --- Pass: Emit test cases ---
-    for file in files {
-        let item_tree = baml_compiler_hir::file_item_tree(db, *file);
-        let items_struct = baml_compiler_hir::file_items(db, *file);
-        for item in items_struct.items(db) {
-            if let ItemId::Test(test_loc) = item {
-                let test = &item_tree[test_loc.id(db)];
-                let args = test
-                    .args
-                    .iter()
-                    .map(|(k, v)| (k.clone(), convert_hir_test_arg(v)))
-                    .collect();
-                program.test_cases.push(bex_vm_types::TestCase {
-                    name: test.name.to_string(),
-                    function_names: test.function_refs.iter().map(|n| n.to_string()).collect(),
-                    args,
-                });
+    // --- Pass: Emit test cases (only when requested) ---
+    if options.emit_test_cases {
+        for file in files {
+            let item_tree = baml_compiler_hir::file_item_tree(db, *file);
+            let items_struct = baml_compiler_hir::file_items(db, *file);
+            for item in items_struct.items(db) {
+                if let ItemId::Test(test_loc) = item {
+                    let test = &item_tree[test_loc.id(db)];
+                    let args = test
+                        .args
+                        .iter()
+                        .map(|(k, v)| (k.clone(), convert_hir_test_arg(v)))
+                        .collect();
+                    program.test_cases.push(bex_vm_types::TestCase {
+                        name: test.name.to_string(),
+                        function_names: test
+                            .function_refs
+                            .iter()
+                            .map(std::string::ToString::to_string)
+                            .collect(),
+                        args,
+                    });
+                }
             }
         }
     }

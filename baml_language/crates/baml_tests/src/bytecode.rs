@@ -85,7 +85,10 @@ pub fn compile_source(source: &str) -> VmProgram {
 
     let project = db.get_project().unwrap();
     let all_files = project.files(&db).clone();
-    baml_compiler_emit::compile_files(&db, &all_files)
+    let options = baml_compiler_emit::CompileOptions {
+        emit_test_cases: false,
+    };
+    baml_compiler_emit::compile_files(&db, &all_files, options)
         .expect("compile_files should succeed for valid test source")
 }
 

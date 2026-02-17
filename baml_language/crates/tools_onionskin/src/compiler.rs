@@ -1350,7 +1350,13 @@ impl CompilerRunner {
         let mut output = String::new();
         let mut output_annotated = Vec::new();
 
-        let program = match baml_compiler_emit::compile_files(&self.db, &files) {
+        let program = match baml_compiler_emit::compile_files(
+            &self.db,
+            &files,
+            baml_compiler_emit::CompileOptions {
+                emit_test_cases: false,
+            },
+        ) {
             Ok(p) => p,
             Err(err) => {
                 writeln!(output, "=== NO CODEGEN DUE TO ERRORS ===").ok();
@@ -1458,7 +1464,13 @@ impl CompilerRunner {
 
         // Compile the program
         let files: Vec<_> = self.source_files.values().copied().collect();
-        let program = match baml_compiler_emit::compile_files(&self.db, &files) {
+        let program = match baml_compiler_emit::compile_files(
+            &self.db,
+            &files,
+            baml_compiler_emit::CompileOptions {
+                emit_test_cases: false,
+            },
+        ) {
             Ok(p) => p,
             Err(err) => {
                 writeln!(output, "=== VM RUNNER ===").ok();
@@ -1606,7 +1618,13 @@ impl CompilerRunner {
         use bex_vm_types::Object;
 
         let files: Vec<_> = self.source_files.values().copied().collect();
-        let program = match baml_compiler_emit::compile_files(&self.db, &files) {
+        let program = match baml_compiler_emit::compile_files(
+            &self.db,
+            &files,
+            baml_compiler_emit::CompileOptions {
+                emit_test_cases: false,
+            },
+        ) {
             Ok(p) => p,
             Err(err) => {
                 self.vm_runner_state.execution_result = Some(VmExecutionResult::Error(format!(

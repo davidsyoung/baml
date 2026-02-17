@@ -139,7 +139,10 @@ pub fn new_engine(
         db.add_or_update_file(&std::path::PathBuf::from(filename), content);
     }
 
-    let bytecode = baml_compiler_emit::generate_project_bytecode(&db)
+    let options = baml_compiler_emit::CompileOptions {
+        emit_test_cases: false,
+    };
+    let bytecode = baml_compiler_emit::generate_project_bytecode(&db, options)
         .map_err(|e| render_lowering_error(&db, &e))?;
 
     let engine = BexEngine::new(bytecode, sys_ops)?;

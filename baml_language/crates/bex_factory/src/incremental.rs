@@ -56,7 +56,10 @@ pub(crate) struct BexIncrementalRuntime {
 }
 
 fn make_engine(db: &ProjectDatabase, sys_ops: SysOps) -> Result<Arc<BexEngine>, RuntimeError> {
-    let bytecode = baml_compiler_emit::generate_project_bytecode(db)
+    let options = baml_compiler_emit::CompileOptions {
+        emit_test_cases: false,
+    };
+    let bytecode = baml_compiler_emit::generate_project_bytecode(db, options)
         .map_err(|e| render_lowering_error(db, &e))?;
 
     BexEngine::new(bytecode, sys_ops)
