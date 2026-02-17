@@ -350,10 +350,15 @@ name = "baml_cli"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "baml_compiler_hir",
+ "baml_db",
  "baml_lsp_server",
+ "baml_project",
+ "baml_workspace",
  "clap",
  "clap-cargo",
  "ctrlc",
+ "regex",
 ]
 
 [[package]]
