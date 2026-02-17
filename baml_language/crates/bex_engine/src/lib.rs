@@ -54,6 +54,7 @@
 #![allow(unsafe_code)]
 
 mod conversion;
+pub use conversion::test_arg_to_external;
 
 use std::{
     collections::HashMap,
@@ -268,6 +269,8 @@ pub struct BexEngine {
     sys_ops: sys_types::SysOps,
     /// Context passed to `sys_ops` that need engine-level information.
     sys_op_ctx: sys_types::SysOpContext,
+    /// Compiled test cases from the BAML program.
+    test_cases: Vec<bex_vm_types::TestCase>,
 
     // --- Epoch-based GC coordination ---
     /// Current epoch counter (monotonically increasing).
@@ -302,6 +305,9 @@ impl BexEngine {
     ) -> Result<Self, EngineError> {
         // Convert the pure bytecode to a VM-ready program with native functions attached
         let bytecode = bex_vm::convert_program(bytecode_program)?;
+
+        // Extract test cases before consuming other bytecode fields.
+        let test_cases = bytecode.test_cases;
 
         // Extract compile-time objects for the heap
         let compile_time_objects: Vec<Object> = bytecode.objects.into_iter().collect();
@@ -366,6 +372,7 @@ impl BexEngine {
             resolved_class_names,
             sys_ops,
             sys_op_ctx,
+            test_cases,
             // Initialize epoch tracking
             current_epoch: AtomicU64::new(0),
             epoch_states: [EpochState::new(), EpochState::new()],
@@ -724,6 +731,16 @@ impl BexEngine {
                 message: format!("Expected Function, got {other:?}"),
             }),
         }
+    }
+
+    /// Get all compiled test cases.
+    pub fn test_cases(&self) -> &[bex_vm_types::TestCase] {
+        &self.test_cases
+    }
+
+    /// Find a test case by name.
+    pub fn test_case(&self, name: &str) -> Option<&bex_vm_types::TestCase> {
+        self.test_cases.iter().find(|t| t.name == name)
     }
 
     /// Collect roots from a yielded VM.

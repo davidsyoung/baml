@@ -44,6 +44,9 @@ pub struct Program {
     /// Pre-formatted Jinja `{% macro %}` definitions for all `template_strings`.
     /// Prepended to function prompt templates by `get_jinja_template`.
     pub template_strings_macros: String,
+
+    /// Compiled test cases.
+    pub test_cases: Vec<TestCase>,
 }
 
 impl Program {
@@ -390,6 +393,37 @@ impl std::fmt::Display for Value {
             Value::Object(ptr) => write!(f, "{ptr}"),
         }
     }
+}
+
+// ============================================================================
+// Test Cases
+// ============================================================================
+
+/// A constant value for test arguments.
+///
+/// Self-contained type with no dependency on HIR or external types.
+/// Converted from HIR's `TestArgValue` during emission, and converted
+/// to `BexExternalValue` in the engine for function calls.
+#[derive(Clone, Debug)]
+pub enum TestArgValue {
+    Null,
+    Int(i64),
+    Float(f64),
+    Bool(bool),
+    String(String),
+    Array(Vec<TestArgValue>),
+    Map(IndexMap<String, TestArgValue>),
+}
+
+/// A compiled test case, ready for execution.
+#[derive(Clone, Debug)]
+pub struct TestCase {
+    /// Test name (e.g., "TestAddOne").
+    pub name: String,
+    /// Function names this test targets.
+    pub function_names: Vec<String>,
+    /// Test arguments, keyed by parameter name.
+    pub args: IndexMap<String, TestArgValue>,
 }
 
 /// Compile-time constant values.

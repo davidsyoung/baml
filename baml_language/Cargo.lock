@@ -350,15 +350,21 @@ name = "baml_cli"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "baml_compiler_diagnostics",
+ "baml_compiler_emit",
  "baml_compiler_hir",
  "baml_db",
  "baml_lsp_server",
  "baml_project",
  "baml_workspace",
+ "bex_engine",
+ "bex_vm_types",
  "clap",
  "clap-cargo",
  "ctrlc",
  "regex",
+ "sys_native",
+ "tokio",
 ]
 
 [[package]]
@@ -430,6 +436,7 @@ dependencies = [
  "baml_compiler_parser",
  "baml_compiler_syntax",
  "baml_workspace",
+ "indexmap",
  "la-arena",
  "rowan 0.16.1",
  "rustc-hash 2.1.1",
