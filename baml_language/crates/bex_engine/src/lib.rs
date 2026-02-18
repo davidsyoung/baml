@@ -54,8 +54,6 @@
 #![allow(unsafe_code)]
 
 mod conversion;
-pub use conversion::test_arg_to_external;
-
 use std::{
     collections::HashMap,
     sync::{
@@ -75,6 +73,7 @@ use bex_heap::BexHeap;
 pub use bex_heap::GcStats;
 use bex_vm::{BexVm, SpanNotification, VmExecState};
 use bex_vm_types::{FunctionMeta, GlobalPool, HeapPtr, Object, SysOp, Value};
+pub use conversion::test_arg_to_external;
 use sys_types::{OpError, SysOpResult};
 use thiserror::Error;
 use tokio::sync::{Notify, mpsc};

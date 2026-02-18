@@ -60,7 +60,7 @@ pub use bex_vm_types::{
 };
 
 /// Options for controlling bytecode compilation.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct CompileOptions {
     /// Include test cases in the compiled program.
     ///
@@ -78,7 +78,7 @@ pub struct CompileOptions {
 /// Returns `Err` if any function contains unrecoverable errors (Missing nodes).
 pub fn generate_project_bytecode(
     db: &dyn baml_compiler_mir::Db,
-    options: CompileOptions,
+    options: &CompileOptions,
 ) -> Result<Program, LoweringError> {
     let project = db.project();
     compile_files(db, project.files(db), options)
@@ -92,7 +92,7 @@ pub fn generate_project_bytecode(
 pub fn compile_files(
     db: &dyn baml_compiler_mir::Db,
     files: &[SourceFile],
-    options: CompileOptions,
+    options: &CompileOptions,
 ) -> Result<Program, LoweringError> {
     // Hidden LLM builtins (not exposed to users but used by compiler-generated code)
     // These are in the #[hide] mod llm block and not included in builtins()

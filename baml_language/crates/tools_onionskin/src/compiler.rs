@@ -1353,7 +1353,7 @@ impl CompilerRunner {
         let program = match baml_compiler_emit::compile_files(
             &self.db,
             &files,
-            baml_compiler_emit::CompileOptions {
+            &baml_compiler_emit::CompileOptions {
                 emit_test_cases: false,
             },
         ) {
@@ -1467,7 +1467,7 @@ impl CompilerRunner {
         let program = match baml_compiler_emit::compile_files(
             &self.db,
             &files,
-            baml_compiler_emit::CompileOptions {
+            &baml_compiler_emit::CompileOptions {
                 emit_test_cases: false,
             },
         ) {
@@ -1621,7 +1621,7 @@ impl CompilerRunner {
         let program = match baml_compiler_emit::compile_files(
             &self.db,
             &files,
-            baml_compiler_emit::CompileOptions {
+            &baml_compiler_emit::CompileOptions {
                 emit_test_cases: false,
             },
         ) {

@@ -197,7 +197,7 @@ fn compile_source(source: &str) -> CompileResult {
     let options = baml_compiler_emit::CompileOptions {
         emit_test_cases: false,
     };
-    let program = baml_compiler_emit::compile_files(&db, &all_files, options)
+    let program = baml_compiler_emit::compile_files(&db, &all_files, &options)
         .expect("compile_files should succeed for valid test source");
 
     // Extract functions from the program
