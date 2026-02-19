@@ -18,11 +18,13 @@ function test_not_null_early_return(x: string?) -> string? {
 
 // Test 3: instanceof with early return
 class NarrowFoo {
+    type "narrow_foo"
     field string
 }
 
 class NarrowBar {
-    other int
+    type "narrow_bar"
+    other string
 }
 
 function test_instanceof_early_return(x: NarrowFoo | NarrowBar) -> string {
